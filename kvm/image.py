@@ -1,35 +1,6 @@
-class Image(object):
+class _Image(object):
     def __init__(self, host):
         self._host = host
-
-    def _convert(self, value):
-        value = value.strip()
-        if value.isdigit():
-            return int(value)
-        for val, map_val in (("yes", True), ("no", False)):
-            if value == val:
-                return map_val
-        return value
-
-    def _dict(self, lines):
-        def format_key(key):
-            return (
-                key.strip().lower().replace(" ", "_").replace("(", "").replace(")", "")
-            )
-
-        elts = {}
-        for line in lines:
-            if not line:
-                continue
-            try:
-                key, value = line.split(":")
-            except ValueError:
-                try:
-                    key, value = line.split()
-                except ValueError:
-                    continue
-            elts[format_key(key)] = self._convert(value or "")
-        return elts
 
     def check(self, path, **kwargs):
         return self._host.execute("qemu-img check", path, **kwargs)
@@ -51,7 +22,7 @@ class Image(object):
         status, stdout, stderr = self._host.execute("qemu-img info", path, **kwargs)
         if not status:
             raise OSError(stderr)
-        return self._dict(stdout.splitlines())
+        return _dict(stdout.splitlines())
 
     def map(self, path, **kwargs):
         return self._host.execute("qemu-img map", path, **kwargs)
